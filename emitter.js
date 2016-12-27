@@ -14,6 +14,63 @@
  *   sub1();
  */
 
-export default class Emitter {
-    constructor() { }
+//export default
+ class Emitter {
+    constructor(url) {
+        this.url = url;
+    }
+    state(eventName) {
+        console.log(this[eventName].readyState);
+    }
+    subscribe(eventName, callback) {
+        if (!this[eventName]) {
+            this[eventName] = new WebSocket(this.url);
+        }
+        this[eventName].onmessage = (event) => {
+            callback(event.data);
+        };
+        //close event with varName.close()
+        return this[eventName];
+    }
+    emit(eventName, ...arg) {
+        if (!this[eventName]) {
+            this[eventName] = new WebSocket(this.url);
+        }
+        this[eventName].onopen = (event) => {
+            this.socket.send(JSON.stringify(arg)); 
+        };
+    }
 }
+
+// Lo mismo pero con metodos y propiedades privados.
+class Emitter2 {
+    constructor(url) {
+        let _url = url;
+        let _state = (eventName) => {
+        console.log(this[eventName].readyState);
+        };
+        this.subscribe = (eventName, callback) => {
+            if (!this[eventName]) {
+                this[eventName] = new WebSocket(_url);
+            }
+            _state(eventName);
+            this[eventName].onmessage = (event) => {
+                callback(event.data);
+            };
+            //close event with varName.close()
+            return this[eventName];
+        };
+        this.emit = (eventName, ...arg) => {
+            if (!this[eventName]) {
+                this[eventName] = new WebSocket(_url);
+            }
+            _state(eventName);
+            this[eventName].onopen = (event) => {
+                this.socket.send(JSON.stringify(arg)); 
+            };
+        };
+    }    
+}
+
+var test = new Emitter('ws://ejemplo.com');
+var test2 = new Emitter2();
