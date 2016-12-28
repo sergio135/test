@@ -13,64 +13,80 @@
  * And allows you to release the subscription like this
  *   sub1();
  */
-
-//export default
- class Emitter {
-    constructor(url) {
+"use strict";
+var Emitter = (function () {
+    function Emitter(url) {
+        if (url === void 0) { url = 'ws://ejemplos.com'; }
         this.url = url;
     }
-    state(eventName) {
-        console.log(this[eventName].readyState);
-    }
-    subscribe(eventName, callback) {
+    Emitter.prototype.state = function (eventName) {
+        if (this[eventName]) {
+            console.log(this[eventName].readyState);
+        }
+    };
+    Emitter.prototype.subscribe = function (eventName, callback) {
+        var _this = this;
         if (!this[eventName]) {
             this[eventName] = new WebSocket(this.url);
         }
-        this[eventName].onmessage = (event) => {
+        this[eventName].onmessage = function (event) {
             callback(event.data);
         };
-        //close event with varName.close()
-        return this[eventName];
-    }
-    emit(eventName, ...arg) {
+        return function () {
+            _this[eventName].close();
+        };
+    };
+    Emitter.prototype.emit = function (eventName) {
+        var _this = this;
+        var arg = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            arg[_i - 1] = arguments[_i];
+        }
         if (!this[eventName]) {
             this[eventName] = new WebSocket(this.url);
         }
-        this[eventName].onopen = (event) => {
-            this.socket.send(JSON.stringify(arg)); 
+        this[eventName].onopen = function (event) {
+            _this[eventName].send(JSON.stringify(arg));
         };
+    };
+    return Emitter;
+}());
+exports.Emitter = Emitter;
+// The same, but with private methods and private properties.
+var Emitter2 = (function () {
+    function Emitter2(url) {
+        this.url = url || 'ws://ejemplos.com';
     }
-}
-
-// Lo mismo pero con metodos y propiedades privados.
-class Emitter2 {
-    constructor(url) {
-        let _url = url;
-        let _state = (eventName) => {
-        console.log(this[eventName].readyState);
+    Emitter2.prototype.state = function (eventName) {
+        if (this[eventName]) {
+            console.log(this[eventName].readyState);
+        }
+    };
+    Emitter2.prototype.subscribe = function (eventName, callback) {
+        var _this = this;
+        if (!this[eventName]) {
+            this[eventName] = new WebSocket(this.url);
+        }
+        this[eventName].onmessage = function (event) {
+            callback(event.data);
         };
-        this.subscribe = (eventName, callback) => {
-            if (!this[eventName]) {
-                this[eventName] = new WebSocket(_url);
-            }
-            _state(eventName);
-            this[eventName].onmessage = (event) => {
-                callback(event.data);
-            };
-            //close event with varName.close()
-            return this[eventName];
+        return function () {
+            _this[eventName].close();
         };
-        this.emit = (eventName, ...arg) => {
-            if (!this[eventName]) {
-                this[eventName] = new WebSocket(_url);
-            }
-            _state(eventName);
-            this[eventName].onopen = (event) => {
-                this.socket.send(JSON.stringify(arg)); 
-            };
+    };
+    Emitter2.prototype.emit = function (eventName) {
+        var _this = this;
+        var arg = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            arg[_i - 1] = arguments[_i];
+        }
+        if (!this[eventName]) {
+            this[eventName] = new WebSocket(this.url);
+        }
+        this[eventName].onopen = function (event) {
+            _this[eventName].send(JSON.stringify(arg));
         };
-    }    
-}
-
-var test = new Emitter('ws://ejemplo.com');
-var test2 = new Emitter2();
+    };
+    return Emitter2;
+}());
+exports.Emitter2 = Emitter2;

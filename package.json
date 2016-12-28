@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "babel-node ./test.js"
+    "test": "babel-node ./test.js",
+    "build": "tsc test.ts emitter.ts & webpack ./test.js bundle.js"
   },
   "author": "",
   "license": "ISC",

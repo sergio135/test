@@ -1,13 +1,21 @@
-import Emitter from './emitter';
-
-const emitter = new Emitter();
-
-const sub1 = emitter.subscribe('log', (...args) => console.log('sub1', ...args));
+"use strict";
+var emitter_1 = require("./emitter");
+var emitter = new emitter_1.Emitter2();
+var sub1 = emitter.subscribe('log', function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    return console.log.apply(console, ['sub1'].concat(args));
+});
 emitter.emit('log', 1, 'should trigger 1 callback');
-
-const sub2 = emitter.subscribe('log', (...args) => console.log('sub2', ...args));
+var sub2 = emitter.subscribe('log', function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    return console.log.apply(console, ['sub2'].concat(args));
+});
 emitter.emit('log', 2, 'should trigger 2 callbacks');
-
 sub1();
-
 emitter.emit('log', 3, 'should trigger 1 callback');
