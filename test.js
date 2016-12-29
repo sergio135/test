@@ -1,6 +1,7 @@
 "use strict";
 var emitter_1 = require("./emitter");
-var emitter = new emitter_1.Emitter2();
+var emitter = new emitter_1.Emitter();
+console.log(emitter);
 var sub1 = emitter.subscribe('log', function () {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -9,6 +10,7 @@ var sub1 = emitter.subscribe('log', function () {
     return console.log.apply(console, ['sub1'].concat(args));
 });
 emitter.emit('log', 1, 'should trigger 1 callback');
+emitter.state('log');
 var sub2 = emitter.subscribe('log', function () {
     var args = [];
     for (var _i = 0; _i < arguments.length; _i++) {

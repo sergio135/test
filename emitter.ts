@@ -16,7 +16,7 @@
 
 export class Emitter {
     url;
-    constructor(url= 'ws://ejemplos.com') {
+    constructor(url= 'ws://test.com') {
         this.url = url;
     }
     state(eventName) {
@@ -47,32 +47,33 @@ export class Emitter {
 
 // The same, but with private methods and private properties.
 export class Emitter2 {
-        private url: string;
-        constructor(url?) {
-            this.url = url || 'ws://ejemplos.com';
+        subscribe: any;
+        emit: any;
+        constructor(urlSocket?) {
+            let url = urlSocket || 'ws://test.com';
+            this.subscribe = (eventName, callback) => {
+                if (!this[eventName]) {
+                    this[eventName] = new WebSocket(url);
+                }
+                this[eventName].onmessage = (event) => {
+                    callback(event.data);
+                };
+                return () => {
+                    this[eventName].close();
+                };
+            };
+            this.emit = (eventName, ...arg) => {
+                if (!this[eventName]) {
+                    this[eventName] = new WebSocket(url);
+                }
+                this[eventName].onopen = (event) => {
+                    this[eventName].send(JSON.stringify(arg));
+                };
+            };
         }
         state(eventName?) {
             if (this[eventName]) {
                 console.log(this[eventName].readyState);
             }
-        }
-        subscribe(eventName, callback) {
-            if (!this[eventName]) {
-                this[eventName] = new WebSocket(this.url);
-            }
-            this[eventName].onmessage = (event) => {
-                callback(event.data);
-            };
-            return () => {
-                this[eventName].close();
-            };
-        }
-        emit(eventName, ...arg) {
-            if (!this[eventName]) {
-                this[eventName] = new WebSocket(this.url);
-            }
-            this[eventName].onopen = (event) => {
-                this[eventName].send(JSON.stringify(arg));
-            };
         }
     }

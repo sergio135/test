@@ -46,7 +46,8 @@
 
 	"use strict";
 	var emitter_1 = __webpack_require__(1);
-	var emitter = new emitter_1.Emitter2();
+	var emitter = new emitter_1.Emitter();
+	console.log(emitter);
 	var sub1 = emitter.subscribe('log', function () {
 	    var args = [];
 	    for (var _i = 0; _i < arguments.length; _i++) {
@@ -55,6 +56,7 @@
 	    return console.log.apply(console, ['sub1'].concat(args));
 	});
 	emitter.emit('log', 1, 'should trigger 1 callback');
+	emitter.state('log');
 	var sub2 = emitter.subscribe('log', function () {
 	    var args = [];
 	    for (var _i = 0; _i < arguments.length; _i++) {
@@ -89,7 +91,7 @@
 	"use strict";
 	var Emitter = (function () {
 	    function Emitter(url) {
-	        if (url === void 0) { url = 'ws://ejemplos.com'; }
+	        if (url === void 0) { url = 'ws://test.com'; }
 	        this.url = url;
 	    }
 	    Emitter.prototype.state = function (eventName) {
@@ -127,38 +129,37 @@
 	exports.Emitter = Emitter;
 	// The same, but with private methods and private properties.
 	var Emitter2 = (function () {
-	    function Emitter2(url) {
-	        this.url = url || 'ws://ejemplos.com';
+	    function Emitter2(urlSocket) {
+	        var _this = this;
+	        var url = urlSocket || 'ws://test.com';
+	        this.subscribe = function (eventName, callback) {
+	            if (!_this[eventName]) {
+	                _this[eventName] = new WebSocket(url);
+	            }
+	            _this[eventName].onmessage = function (event) {
+	                callback(event.data);
+	            };
+	            return function () {
+	                _this[eventName].close();
+	            };
+	        };
+	        this.emit = function (eventName) {
+	            var arg = [];
+	            for (var _i = 1; _i < arguments.length; _i++) {
+	                arg[_i - 1] = arguments[_i];
+	            }
+	            if (!_this[eventName]) {
+	                _this[eventName] = new WebSocket(url);
+	            }
+	            _this[eventName].onopen = function (event) {
+	                _this[eventName].send(JSON.stringify(arg));
+	            };
+	        };
 	    }
 	    Emitter2.prototype.state = function (eventName) {
 	        if (this[eventName]) {
 	            console.log(this[eventName].readyState);
 	        }
-	    };
-	    Emitter2.prototype.subscribe = function (eventName, callback) {
-	        var _this = this;
-	        if (!this[eventName]) {
-	            this[eventName] = new WebSocket(this.url);
-	        }
-	        this[eventName].onmessage = function (event) {
-	            callback(event.data);
-	        };
-	        return function () {
-	            _this[eventName].close();
-	        };
-	    };
-	    Emitter2.prototype.emit = function (eventName) {
-	        var _this = this;
-	        var arg = [];
-	        for (var _i = 1; _i < arguments.length; _i++) {
-	            arg[_i - 1] = arguments[_i];
-	        }
-	        if (!this[eventName]) {
-	            this[eventName] = new WebSocket(this.url);
-	        }
-	        this[eventName].onopen = function (event) {
-	            _this[eventName].send(JSON.stringify(arg));
-	        };
 	    };
 	    return Emitter2;
 	}());
